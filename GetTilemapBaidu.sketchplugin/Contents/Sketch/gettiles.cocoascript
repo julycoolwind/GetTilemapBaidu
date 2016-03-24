@@ -1,0 +1,72 @@
+var onRun = function(context) {
+    function createSelect(msg){
+
+        var alert = NSAlert.alloc().init()
+        alert.setMessageText(msg)
+        alert.addButtonWithTitle('OK')
+        alert.addButtonWithTitle('Cancel')
+        var contentView = NSView.alloc().initWithFrame(NSMakeRect(0,0,300,100))
+        var startXField = NSTextField.alloc().initWithFrame(NSMakeRect(0,0,300,25))
+        contentView.addSubview(startXField)
+        alert.setAccessoryView(contentView)
+        var responseCode = alert.runModal()
+        var input = startXField.stringValue()
+        return [responseCode,input]
+    }
+
+    var choice = createSelect('请输入要获取瓦片图的信息\n目标层;起始x_起始y;终止x_终止y;结束层\n示例:16;11320_2685;11320_2686;17')
+    if(choice[0] == 1001){
+        return
+    }
+    var reg = new RegExp("^[0-9]+;[0-9]+_[0-9]+;[0-9]+_[0-9]+;[0-9]+$")
+    log(choice)
+    if(!reg.test(choice[1])){
+        context.document.showMessage("格式错误!>>>示例:16;11320_2685;11320_2686;17")
+        return
+    }
+    var paramArr = choice[1].componentsSeparatedByString(';')
+    if(paramArr[0]>paramArr[3]){
+        context.document.showMessage("结束层应当大于等于起始层")
+        return
+    }
+    if(paramArr[3]>19){
+        context.document.showMessage("结束层最大只能为19")
+        return
+    }
+
+    var startZoom = paramArr[0];
+    var startX = paramArr[1].componentsSeparatedByString('_')[0];
+    var startY = paramArr[1].componentsSeparatedByString('_')[1];
+    var endZoom = paramArr[3];
+    var endX = paramArr[2].componentsSeparatedByString('_')[0];
+    var endY = paramArr[2].componentsSeparatedByString('_')[1];
+
+    if(startX>endX){
+        context.document.showMessage("起始x应当小于结束x！")
+        return
+    }
+
+    if(startY>endY){
+        context.document.showMessage("起始y应当小于结束y！")
+        return
+    }
+    for(zoom = startZoom;zoom<=endZoom;zoom++){
+        context.document.addBlankPage().name = ""+zoom;
+        for(x = startX*Math.pow(2,zoom-startZoom);x<=endX*Math.pow(2,zoom-startZoom)+Math.pow(2,zoom-startZoom)-1;x++){
+            for(y = startY*Math.pow(2,zoom-startZoom);y<=endY*Math.pow(2,zoom-startZoom)+Math.pow(2,zoom-startZoom)-1;y++){
+                downLoadTile(zoom,x,y,startX*Math.pow(2,zoom-startZoom),endY*Math.pow(2,zoom-startZoom)+Math.pow(2,zoom-startZoom)-1);
+            }
+        }
+    }
+    function downLoadTile(zoom,x,y,minx,maxy){
+        var urlString = "http://online3.map.bdimg.com/onlinelabel/?qt=tile&x="+x+"&y="+y+"&z="+zoom+"&styles=pl&udt=20160321&scaler=2&p=0";
+        var imageURL = [NSURL URLWithString:urlString];
+        var imageFromURL = [[NSImage alloc] initWithContentsOfURL:imageURL];
+        var imageLayer;
+        var image = [imageCollection addImage:imageFromURL convertColourspace:false];
+        var f = NSMakeRect((x-minx)*512, (maxy-y)*512, 512, 512);
+        imageLayer = [[MSBitmapLayer alloc]initWithFrame:f image:image];
+        imageLayer.name=""+zoom+"_"+x+"_"+y;
+        context.document.currentPage().addLayers([imageLayer]);
+    }
+};

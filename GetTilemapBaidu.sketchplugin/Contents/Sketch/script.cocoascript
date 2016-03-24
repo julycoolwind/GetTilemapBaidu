@@ -1,0 +1,63 @@
+var onRun = function(context) {
+    var doc = context.document;
+    var documentName = context.document.displayName();
+
+    var selectedLayers = context.selection;
+    var selectedCount = selectedLayers.count();
+    var minx = 0;
+    var maxx = 0;
+    var miny = 0;
+    var maxy = 0;
+    var xScale = 0;
+    var yScale = 0;
+    var size = 512;
+    var zoom = 0;
+    var nameTest = new RegExp("^[0-9]+_[0-9]+_[0-9]+$");
+    if (selectedCount == 0) {
+        doc.showMessage('需要选中层才能进行排列！')
+    } else {
+        
+        for (var i = 0; i < selectedCount; i++) {
+            var layer = selectedLayers[i];
+            if(!nameTest.test(layer.name())){
+                log(nameTest.test(layer.name()));
+                doc.showMessage(layer.name()+'包含错误的名称,必须是【数字_数字_数字】形式的名称!');
+                return;
+            }
+            var arr = layer.name().componentsSeparatedByString('_');
+            if(i == 0){
+                zoom = arr[0];
+                minx = arr[1];
+                maxx = arr[1];
+                miny = arr[2];
+                maxy = arr[2];
+            }else{
+                if(minx > arr[1]){
+                    minx = arr[1];
+                }
+                if(maxx < arr[1]){
+                    maxx = arr[1];
+                }
+                if(miny > arr[2]){
+                    miny = arr[2];
+                }
+                if(maxy < arr[2]){
+                    maxy = arr[2];
+                }
+                if(zoom != arr[0]){
+                    doc.showMessage(layer.name()+"错误，只能对同一层的瓦片图进行排列，请检查。");
+                    return;
+                }
+            }
+        }
+        xScale = maxx-minx+1;
+        yScale = maxy-miny+1;
+        
+        for (var i = 0; i < selectedCount; i++) {
+            var layer = selectedLayers[i];
+            var arr = layer.name().componentsSeparatedByString('_');
+            layer.absoluteRect().rulerX = (arr[1]-minx) * size;
+            layer.absoluteRect().rulerY = (maxy-arr[2]) * size;
+        }
+    };
+};

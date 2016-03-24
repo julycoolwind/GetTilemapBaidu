@@ -1,0 +1,31 @@
+{
+  "author" : "linxin",
+  "commands" : [
+    {
+      "script" : "script.cocoascript",
+      "handler" : "onRun",
+      "shortcut" : "",
+      "name" : "Range",
+      "identifier" : "tiles"
+    },{
+      "script" : "gettiles.cocoascript",
+      "handler" : "onRun",
+      "shortcut" : "",
+      "name" : "GetTiles",
+      "identifier" : "get_tiles"
+    }
+  ],
+  "menu" : {
+    "isRoot" : false,
+    "items" : [
+      "tiles",
+      "get_tiles"
+    ],
+    "title" : "RangeTiles"
+  },
+  "identifier" : "com.example.sketch.9da1af87-bb54-4c51-a466-162026a4478d",
+  "version" : "1.1",
+  "description" : "用于排列zoom_x_y形式的瓦片图",
+  "authorEmail" : "julycoolwind@hotmail.com",
+  "name" : "GetTileampBaidu"
+}
