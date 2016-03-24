@@ -44,7 +44,7 @@ var onRun = function(context) {
                 if(maxy < arr[2]){
                     maxy = arr[2];
                 }
-                if(zoom != arr[0]){
+                if((zoom-arr[0])!=0){
                     doc.showMessage(layer.name()+"错误，只能对同一层的瓦片图进行排列，请检查。");
                     return;
                 }

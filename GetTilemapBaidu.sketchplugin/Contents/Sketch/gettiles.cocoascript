@@ -63,7 +63,7 @@ var onRun = function(context) {
         var imageURL = [NSURL URLWithString:urlString];
         var imageFromURL = [[NSImage alloc] initWithContentsOfURL:imageURL];
         var imageLayer;
-        var image = [imageCollection addImage:imageFromURL convertColourspace:false];
+        var image = [[MSImageData alloc] initWithImage:imageFromURL convertColorSpace:false];
         var f = NSMakeRect((x-minx)*512, (maxy-y)*512, 512, 512);
         imageLayer = [[MSBitmapLayer alloc]initWithFrame:f image:image];
         imageLayer.name=""+zoom+"_"+x+"_"+y;
